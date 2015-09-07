@@ -1,6 +1,6 @@
 module Calagator
   class Event < ActiveRecord::Base
-    class Browse < Struct.new(:order, :date, :time)
+    class Browse < Struct.new(:order, :start_date, :end_date, :start_time, :end_time)
       def initialize(attributes={})
         members.each do |key|
           send "#{key}=", attributes[key]
@@ -9,22 +9,6 @@ module Calagator
 
       def events
         @events ||= sort.filter_by_date.filter_by_time.scope
-      end
-
-      def start_date
-        date_for(:start).strftime('%Y-%m-%d')
-      end
-
-      def end_date
-        date_for(:end).strftime('%Y-%m-%d')
-      end
-
-      def start_time
-        time_for(:start).strftime('%I:%M %p') if time_for(:start)
-      end
-
-      def end_time
-        time_for(:end).strftime('%I:%M %p') if time_for(:end)
       end
 
       def errors
@@ -47,8 +31,8 @@ module Calagator
       end
 
       def filter_by_date
-        @scope = if date
-          scope.within_dates(date_for(:start), date_for(:end))
+        @scope = if start_date || end_date
+          scope.within_dates(start_date, end_date)
         else
           scope.future
         end
@@ -56,35 +40,85 @@ module Calagator
       end
 
       def filter_by_time
-        @scope = after_time if time_for(:start)
-        @scope = before_time if time_for(:end)
+        @scope = after_time if start_time
+        @scope = before_time if end_time
         self
+      end
+      
+      private
+
+      def before_time
+        scope.select { |event| event.end_time.hour <= end_time.hour }
+      end
+
+      def after_time
+        scope.select { |event| event.start_time.hour >= start_time.hour }
+      end
+    end
+
+    Browse = Class.new(Browse) do
+      def start_date
+        format_date super
+      end
+      
+      def start_date= value
+        return super default_start_date unless value.present
+        super Date.parse(value)
+      rescue NoMethodError, ArgumentError, TypeError
+        errors << "Can't filter by an invalid start date."
+        super default_start_date
+      end
+
+      private def default_start_date
+        Time.zone.today 
+      end
+
+      def end_date
+        format_date super
+      end
+
+      def end_date= value
+        return super default_end_date unless value.present
+        super Date.parse(value)
+      rescue NoMethodError, ArgumentError, TypeError
+        errors << "Can't filter by an invalid end date."
+        super default_end_date
+      end
+
+      private def default_end_date
+        3.months.from_now
+      end
+
+      def start_time
+        format_time(super) if super
+      end
+
+      def start_time= value
+        super parse_time(value)
+      end
+
+      def end_time
+        format_time(super) if super
+      end
+
+      def end_time= value
+        super parse_time(value)
       end
 
       private
 
-      def default_date_for(kind)
-        kind == :start ? Time.zone.today : Time.zone.today + 3.months
+      def format_date value
+        value.strftime('%Y-%m-%d')
       end
 
-      def date_for(kind)
-        return default_date_for(kind) unless date.present?
-        Date.parse(date[kind])
+      def format_time value
+        value.strftime('%I:%M %p')
+      end
+
+      def parse_time value
+        Time.zone.parse(value)
       rescue NoMethodError, ArgumentError, TypeError
-        errors << "Can't filter by an invalid #{kind} date."
-        default_date_for(kind)
-      end
-
-      def time_for(kind)
-        Time.zone.parse(time[kind]) rescue nil
-      end
-
-      def before_time
-        scope.select { |event| event.end_time.hour <= time_for(:end).hour }
-      end
-
-      def after_time
-        scope.select { |event| event.start_time.hour >= time_for(:start).hour }
+        nil
       end
     end
   end

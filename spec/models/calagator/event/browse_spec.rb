@@ -3,56 +3,6 @@ require 'spec_helper'
 module Calagator
   describe Event::Browse do
     describe "when filtering by date range" do
-      [:start, :end].each do |date_kind|
-        describe "for #{date_kind} date" do
-          let(:start_date) { "2010-01-01" }
-          let(:end_date) { "2010-04-01" }
-          let(:date_field) { "#{date_kind}_date" }
-
-          around do |example|
-            Timecop.freeze(Time.zone.parse(start_date)) do
-              example.run
-            end
-          end
-
-          it "should use the default if not given the parameter" do
-            browse = Event::Browse.new(date: {})
-            expect(browse.send(date_field)).to eq send(date_field)
-            expect(browse.errors).to be_empty
-          end
-
-          it "should use the default if given a malformed parameter" do
-            browse = Event::Browse.new(date: "omgkittens")
-            expect(browse.send(date_field)).to eq send(date_field)
-            expect(browse.errors).to include(/invalid/)
-          end
-
-          it "should use the default if given a missing parameter" do
-            browse = Event::Browse.new(date: { foo: "bar" })
-            expect(browse.send(date_field)).to eq send(date_field)
-            expect(browse.errors).to include(/invalid/)
-          end
-
-          it "should use the default if given an empty parameter" do
-            browse = Event::Browse.new(date: { date_kind => "" })
-            expect(browse.send(date_field)).to eq send(date_field)
-            expect(browse.errors).to include(/invalid/)
-          end
-
-          it "should use the default if given an invalid parameter" do
-            browse = Event::Browse.new(date: { date_kind => "omgkittens" })
-            expect(browse.send(date_field)).to eq send(date_field)
-            expect(browse.errors).to include(/invalid/)
-          end
-
-          it "should use the value if valid" do
-            expected = Date.yesterday.to_s("%Y-%m-%d")
-            browse = Event::Browse.new(date: { date_kind => expected })
-            expect(browse.send(date_field)).to eq expected
-          end
-        end
-      end
-
       it "should return matching events" do
         # Given
         matching = [
@@ -81,7 +31,7 @@ module Calagator
         ]
 
         # When
-        browse = Event::Browse.new(date: { start: "2010-01-16", end: "2010-01-16" })
+        browse = Event::Browse.new(start_date: "2010-01-16", end_date: "2010-01-16")
         results = browse.events
 
         # Then
