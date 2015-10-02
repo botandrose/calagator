@@ -38,15 +38,11 @@ class EventsController < Calagator::ApplicationController
   def edit
   end
 
-  # POST /events
+  # POST /events, # PUT /events/1
   def create
     CreateOrUpdate.new(self).call
   end
-
-  # PUT /events/1
-  def update
-    CreateOrUpdate.new(self).call
-  end
+  alias_method :update, :create
 
   class CreateOrUpdate < SimpleDelegator
     def call
