@@ -40,34 +40,36 @@ class EventsController < Calagator::ApplicationController
 
   # POST /events
   def create
-    create_or_update
+    CreateOrUpdate.new(self).call
   end
 
   # PUT /events/1
   def update
-    create_or_update
+    CreateOrUpdate.new(self).call
   end
 
-  def create_or_update
-    saver = Event::Saver.new(event, params.permit!)
-    respond_to do |format|
-      if saver.save
-        format.html {
-          flash[:success] = 'Event was successfully saved.'
-          if saver.has_new_venue?
-            flash[:success] += " Please tell us more about where it's being held."
-            redirect_to edit_venue_url(event.venue, from_event: event.id)
-          else
-            redirect_to event
-          end
-        }
-        format.xml  { render xml: event, status: :created, location: event }
-      else
-        format.html {
-          flash[:failure] = saver.failure
-          render action: event.new_record? ? "new" : "edit"
-        }
-        format.xml  { render xml: event.errors, status: :unprocessable_entity }
+  class CreateOrUpdate < SimpleDelegator
+    def call
+      saver = Event::Saver.new(event, params.permit!)
+      respond_to do |format|
+        if saver.save
+          format.html {
+            flash[:success] = 'Event was successfully saved.'
+            if saver.has_new_venue?
+              flash[:success] += " Please tell us more about where it's being held."
+              redirect_to edit_venue_url(event.venue, from_event: event.id)
+            else
+              redirect_to event
+            end
+          }
+          format.xml  { render xml: event, status: :created, location: event }
+        else
+          format.html {
+            flash[:failure] = saver.failure
+            render action: event.new_record? ? "new" : "edit"
+          }
+          format.xml  { render xml: event.errors, status: :unprocessable_entity }
+        end
       end
     end
   end
