@@ -604,16 +604,10 @@ describe EventsController, :type => :controller do
 
       it "should redirect duplicate events to their master" do
         event_master = FactoryGirl.create(:event)
-        event_duplicate = FactoryGirl.create(:event)
+        event_duplicate = FactoryGirl.create(:event, duplicate_of: event_master)
 
         get 'show', :id => event_duplicate.id
-        expect(response).not_to be_redirect
-        expect(assigns(:event).id).to eq event_duplicate.id
 
-        event_duplicate.duplicate_of = event_master
-        event_duplicate.save!
-
-        get 'show', :id => event_duplicate.id
         expect(response).to be_redirect
         expect(response).to redirect_to(event_url(event_master.id))
       end
