@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'open-uri'
 
 module Calagator
 
@@ -190,6 +191,7 @@ describe SourcesController, :type => :controller do
 
     before(:each) do
       @source = mock_model(Source)
+      expect(@source).to receive(:events).with(include: :venues)
       allow(Source).to receive(:find).and_return(@source)
     end
 
@@ -208,7 +210,7 @@ describe SourcesController, :type => :controller do
     end
 
     it "should find the source requested" do
-      expect(Source).to receive(:find).with("1", :include => [:events, :venues]).and_return(@source)
+      expect(Source).to receive(:find).with("1").and_return(@source)
       do_get
     end
 
@@ -222,6 +224,7 @@ describe SourcesController, :type => :controller do
 
     before(:each) do
       @source = mock_model(Source, :to_xml => "XML")
+      expect(@source).to receive(:events).with(include: :venues)
       allow(Source).to receive(:find).and_return(@source)
     end
 
@@ -236,7 +239,7 @@ describe SourcesController, :type => :controller do
     end
 
     it "should find the source requested" do
-      expect(Source).to receive(:find).with("1", :include => [:events, :venues]).and_return(@source)
+      expect(Source).to receive(:find).with("1").and_return(@source)
       do_get
     end
 

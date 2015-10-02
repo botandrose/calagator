@@ -1,8 +1,11 @@
 module Calagator
 
 class SourcesController < Calagator::ApplicationController
+  def source
+    @source ||= params[:id] ? Source.find(params[:id]) : Source.new
+  end
+
   # POST /import
-  # POST /import.xml
   def import
     @importer = Source::Importer.new(params.permit![:source])
     respond_to do |format|
@@ -17,10 +20,8 @@ class SourcesController < Calagator::ApplicationController
   end
   
   # GET /sources
-  # GET /sources.xml
   def index
     @sources = Source.listing
-
     respond_to do |format|
       format.html { @sources = @sources.paginate(page: params[:page], per_page: params[:per_page]) }
       format.xml  { render xml: @sources }
@@ -28,12 +29,11 @@ class SourcesController < Calagator::ApplicationController
   end
 
   # GET /sources/1
-  # GET /sources/1.xml
   def show
-    @source = Source.find(params[:id], include: [:events, :venues])
+    source.events(include: :venues) # avoid n+1 query
     respond_to do |format|
       format.html # show.html.erb
-      format.xml  { render xml: @source }
+      format.xml  { render xml: source }
     end
   rescue ActiveRecord::RecordNotFound => error
     flash[:failure] = error.to_s if params[:id] != "import"
@@ -42,46 +42,31 @@ class SourcesController < Calagator::ApplicationController
 
   # GET /sources/new
   def new
-    @source = Source.new
-    @source.url = params[:url] if params[:url].present?
+    source.url = params[:url] if params[:url].present?
+    source
   end
 
   # GET /sources/1/edit
   def edit
-    @source = Source.find(params[:id])
+    source
   end
 
-  # POST /sources
-  # POST /sources.xml
+  # POST /sources, # PUT /sources/1
   def create
-    @source = Source.new
-    create_or_update
-  end
-
-  # PUT /sources/1
-  # PUT /sources/1.xml
-  def update
-    @source = Source.find(params[:id])
-    create_or_update
-  end
-
-  def create_or_update
     respond_to do |format|
-      if @source.update_attributes(params.permit![:source])
-        format.html { redirect_to @source, notice: 'Source was successfully saved.' }
-        format.xml  { render xml: @source, status: :created, location: @source }
+      if source.update_attributes(params.permit![:source])
+        format.html { redirect_to source, notice: 'Source was successfully saved.' }
+        format.xml  { render xml: source, status: :created, location: source }
       else
-        format.html { render action: @source.new_record? ? "new" : "edit" }
-        format.xml  { render xml: @source.errors, status: :unprocessable_entity }
+        format.html { render action: source.new_record? ? "new" : "edit" }
+        format.xml  { render xml: source.errors, status: :unprocessable_entity }
       end
     end
   end
-  private :create_or_update
+  alias_method :update, :create
 
   # DELETE /sources/1
-  # DELETE /sources/1.xml
   def destroy
-    source = Source.find(params[:id])
     ApplicationController::SharedDestroy.new(self).call(source)
   end
 end
