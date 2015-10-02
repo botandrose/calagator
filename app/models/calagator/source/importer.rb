@@ -34,10 +34,12 @@ class Source < ActiveRecord::Base
       end
     end
 
+    delegate :errors, :url, to: :source
+
     private
 
     def add_error message
-      source.errors.add :base, message
+      errors.add :base, message
       nil
     end
   end
