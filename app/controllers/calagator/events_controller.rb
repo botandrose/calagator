@@ -90,12 +90,7 @@ class EventsController < Calagator::ApplicationController
 
   # DELETE /events/1
   def destroy
-    event.destroy
-
-    respond_to do |format|
-      format.html { redirect_to(events_url, :flash => {:success => "\"#{event.title}\" has been deleted"}) }
-      format.xml  { head :ok }
-    end
+    ApplicationController::SharedDestroy.new(self).call(event)
   end
 
   # GET /events/search

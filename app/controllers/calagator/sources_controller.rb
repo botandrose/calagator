@@ -81,13 +81,8 @@ class SourcesController < Calagator::ApplicationController
   # DELETE /sources/1
   # DELETE /sources/1.xml
   def destroy
-    @source = Source.find(params[:id])
-    @source.destroy
-
-    respond_to do |format|
-      format.html { redirect_to sources_url }
-      format.xml  { head :ok }
-    end
+    source = Source.find(params[:id])
+    ApplicationController::SharedDestroy.new(self).call(source)
   end
 end
 

@@ -20,7 +20,7 @@ class ApplicationController < ActionController::Base
   protect_from_forgery # :secret => '8813a7fec0bb4fbffd283a3868998eed'
   skip_before_action :verify_authenticity_token, if: :json_request?
 
-protected
+  private
 
   def json_request?
     request.format.json?
@@ -34,6 +34,18 @@ protected
         :if => Proc.new { Calagator.admin_username && Calagator.admin_password }
       )
     )
+  end
+
+  #---[ Common Actions ]--------------------------------------------------
+
+  class SharedDestroy < SimpleDelegator
+    def call(record)
+      record.destroy
+      respond_to do |format|
+        format.html { redirect_to record.class, flash: { success: %("#{record.title}" has been deleted) } }
+        format.xml  { head :ok }
+      end
+    end
   end
 
   #---[ Helpers ]---------------------------------------------------------

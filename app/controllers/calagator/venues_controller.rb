@@ -167,11 +167,7 @@ class VenuesController < Calagator::ApplicationController
     end
 
     def destroy
-      venue.destroy
-      respond_to do |format|
-        format.html { redirect_to venues_path, flash: { success: %("#{venue.title}" has been deleted) } }
-        format.xml  { head :ok }
-      end
+      ApplicationController::SharedDestroy.new(self).call(venue)
     end
   end
 end
