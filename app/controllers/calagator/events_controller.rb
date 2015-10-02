@@ -46,26 +46,40 @@ class EventsController < Calagator::ApplicationController
 
   class CreateOrUpdate < SimpleDelegator
     def call
-      saver = Event::Saver.new(event, params.permit!)
+      (save and render_success) or render_failure
+    end
+
+    private
+
+    attr_accessor :saver
+
+    def save
+      self.saver = Event::Saver.new(event, params.permit!)
+      saver.save
+    end
+
+    def render_success
       respond_to do |format|
-        if saver.save
-          format.html {
-            flash[:success] = 'Event was successfully saved.'
-            if saver.has_new_venue?
-              flash[:success] += " Please tell us more about where it's being held."
-              redirect_to edit_venue_url(event.venue, from_event: event.id)
-            else
-              redirect_to event
-            end
-          }
-          format.xml  { render xml: event, status: :created, location: event }
-        else
-          format.html {
-            flash[:failure] = saver.failure
-            render action: event.new_record? ? "new" : "edit"
-          }
-          format.xml  { render xml: event.errors, status: :unprocessable_entity }
-        end
+        format.html {
+          flash[:success] = 'Event was successfully saved.'
+          if saver.has_new_venue?
+            flash[:success] += " Please tell us more about where it's being held."
+            redirect_to edit_venue_url(event.venue, from_event: event.id)
+          else
+            redirect_to event
+          end
+        }
+        format.xml  { render xml: event, status: :created, location: event }
+      end
+    end
+
+    def render_failure
+      respond_to do |format|
+        format.html {
+          flash[:failure] = saver.failure
+          render action: event.new_record? ? "new" : "edit"
+        }
+        format.xml  { render xml: event.errors, status: :unprocessable_entity }
       end
     end
   end
