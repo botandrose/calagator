@@ -1,3 +1,3 @@
 # frozen_string_literal: true
 
-ApplicationRecord.observers << Calagator::CacheObserver
+Calagator::ApplicationRecord.observers << Calagator::CacheObserver
