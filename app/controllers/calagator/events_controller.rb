@@ -15,7 +15,7 @@ module Calagator
     # GET /events
     # GET /events.xml
     def index
-      @browse = Event::Browse.new(params)
+      @browse = Event::Browse.new(params.permit(:order, :date, :time, tags: []))
       @events = @browse.events
       @browse.errors.each { |error| append_flash :failure, error }
       render_events @events

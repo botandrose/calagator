@@ -2,15 +2,16 @@
 
 module Calagator
   class Event < Calagator::ApplicationRecord
-    class Browse < Struct.new(:order, :date, :time)
-      def initialize(attributes = {})
-        members.each do |key|
-          send "#{key}=", attributes[key]
-        end
+    class Browse
+      include ActiveModel::Model
+
+      attr_accessor :order, :date, :time, :tags
+      def tags
+        @tags ||= []
       end
 
       def events
-        @events ||= sort.filter_by_date.filter_by_time.scope
+        @events ||= sort.filter_by_date.filter_by_time.filter_by_tags.scope
       end
 
       def start_date
@@ -34,7 +35,7 @@ module Calagator
       end
 
       def default?
-        values.all?(&:blank?)
+        [order, date, time, tags].all?(&:blank?)
       end
 
       protected
@@ -60,6 +61,13 @@ module Calagator
       def filter_by_time
         @scope = after_time if time_for(:start)
         @scope = before_time if time_for(:end)
+        self
+      end
+
+      def filter_by_tags
+        if tags.any?
+          @scope = scope.tagged_with(tags, any: true)
+        end
         self
       end
 
