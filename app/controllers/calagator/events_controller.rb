@@ -15,9 +15,9 @@ module Calagator
     # GET /events
     # GET /events.xml
     def index
-      @browse = Event::Browse.new(params.permit(:order, :date, :time, tags: []))
+      @browse = Event::Browse.new(browse_params)
       @events = @browse.events
-      @browse.errors.each { |error| append_flash :failure, error }
+      @browse.errors.each { |field, error| append_flash :failure, error }
       render_events @events
     end
 
@@ -110,6 +110,21 @@ module Calagator
     end
 
     private
+
+    def browse_params
+      attrs = params.fetch(:event_browse, {}).permit(:order, :start_date, :end_date, tags: []).to_h.symbolize_keys
+      if attrs[:start_date].present?
+        attrs[:start_date] = Time.zone.parse(attrs[:start_date]).to_date
+      else
+        attrs[:start_date] = Time.zone.today
+      end
+      if attrs[:end_date].present?
+        attrs[:end_date] = Time.zone.parse(attrs[:end_date]).to_date
+      end
+      attrs[:tags] ||= []
+      attrs[:tags].reject!(&:blank?)
+      attrs
+    end
 
     def render_event(event)
       respond_to do |format|

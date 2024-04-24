@@ -5,37 +5,18 @@ module Calagator
     class Browse
       include ActiveModel::Model
 
-      attr_accessor :order, :date, :time, :tags
+      attr_accessor :order, :start_date, :end_date, :tags
+
       def tags
         @tags ||= []
       end
 
       def events
-        @events ||= sort.filter_by_date.filter_by_time.filter_by_tags.scope
-      end
-
-      def start_date
-        date_for(:start).strftime("%Y-%m-%d")
-      end
-
-      def end_date
-        date_for(:end).strftime("%Y-%m-%d")
-      end
-
-      def start_time
-        time_for(:start)&.strftime("%I:%M %p")
-      end
-
-      def end_time
-        time_for(:end)&.strftime("%I:%M %p")
+        @events ||= sort.filter_by_date.filter_by_tags.scope
       end
 
       def errors
-        @errors ||= []
-      end
-
-      def default?
-        [order, date, time, tags].all?(&:blank?)
+        @errors ||= {}
       end
 
       protected
@@ -50,17 +31,11 @@ module Calagator
       end
 
       def filter_by_date
-        @scope = if date
-          scope.within_dates(date_for(:start), date_for(:end))
+        @scope = if end_date.present?
+          scope.within_dates(start_date, end_date)
         else
-          scope.future
+          scope.on_or_after_date(start_date)
         end
-        self
-      end
-
-      def filter_by_time
-        @scope = after_time if time_for(:start)
-        @scope = before_time if time_for(:end)
         self
       end
 
@@ -69,35 +44,6 @@ module Calagator
           @scope = scope.tagged_with(tags, any: true)
         end
         self
-      end
-
-      private
-
-      def default_date_for(kind)
-        (kind == :start) ? Time.zone.today : Time.zone.today + 3.months
-      end
-
-      def date_for(kind)
-        return default_date_for(kind) if date.blank?
-
-        Date.parse(date[kind])
-      rescue NoMethodError, ArgumentError, TypeError
-        errors << "Can't filter by an invalid #{kind} date."
-        default_date_for(kind)
-      end
-
-      def time_for(kind)
-        Time.zone.parse(time[kind])
-      rescue
-        nil
-      end
-
-      def before_time
-        scope.select { |event| event.end_time.hour <= time_for(:end).hour }
-      end
-
-      def after_time
-        scope.select { |event| event.start_time.hour >= time_for(:start).hour }
       end
     end
   end
