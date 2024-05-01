@@ -5,14 +5,22 @@ module Calagator
     class Browse
       include ActiveModel::Model
 
-      attr_accessor :order, :start_date, :end_date, :tags
+      attr_accessor :order, :start_date, :end_date, :tags, :location, :distance
 
       def tags
         @tags ||= []
       end
 
       def events
-        @events ||= sort.filter_by_date.filter_by_tags.scope
+        @events ||= sort.filter_by_date.filter_by_tags.filter_by_geo.scope
+      end
+
+      def distance
+        @distance ||= 25
+      end
+
+      def distance= value
+        @distance = value&.to_i
       end
 
       def errors
@@ -42,6 +50,14 @@ module Calagator
       def filter_by_tags
         if tags.any?
           @scope = scope.tagged_with(tags, any: true)
+        end
+        self
+      end
+
+      def filter_by_geo
+        if location.present?
+          venues = Venue.within(distance, origin: location)
+          @scope = scope.where(venue: venues)
         end
         self
       end

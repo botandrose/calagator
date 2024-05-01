@@ -112,7 +112,7 @@ module Calagator
     private
 
     def browse_params
-      attrs = params.fetch(:event_browse, {}).permit(:order, :start_date, :end_date, tags: []).to_h.symbolize_keys
+      attrs = params.fetch(:event_browse, {}).permit(:order, :location, :distance, :start_date, :end_date, tags: []).to_h.symbolize_keys
       if attrs[:start_date].present?
         attrs[:start_date] = Time.zone.parse(attrs[:start_date]).to_date
       else
