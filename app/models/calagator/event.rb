@@ -50,6 +50,8 @@ module Calagator
 
     # Associations
     belongs_to :venue, counter_cache: true, optional: true
+    accepts_nested_attributes_for :venue
+
     belongs_to :source, optional: true
 
     # Validations
