@@ -3,7 +3,6 @@
 //= require jquery-ui/effect
 //= require calagator/forms
 //= require calagator/mapping
-//= require leaflet.awesome-markers
 
 // Shows hidden section when a link is clicked, and hides the link.
 //

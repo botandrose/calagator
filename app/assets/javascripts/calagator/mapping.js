@@ -1,4 +1,5 @@
-//= require leaflet.awesome-markers
+// require leaflet
+// require leaflet.awesome-markers
 
 var map = function(layer_constructor, map_tiles, div_id, center, zoom, marker_color, rawMarkers, should_fit_bounds) {
   klass = eval(layer_constructor)
