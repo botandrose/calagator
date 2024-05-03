@@ -16,7 +16,7 @@ module Calagator
       end
 
       def distance
-        @distance ||= 25
+        @distance ||= 100
       end
 
       def distance= value
