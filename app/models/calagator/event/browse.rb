@@ -55,7 +55,7 @@ module Calagator
       end
 
       def filter_by_geo
-        if location.present?
+        if location.present? && distance.nonzero?
           begin
             venues = Venue.within(distance, origin: location)
             @scope = scope.where(venue: venues)
