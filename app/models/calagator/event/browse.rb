@@ -56,8 +56,12 @@ module Calagator
 
       def filter_by_geo
         if location.present?
-          venues = Venue.within(distance, origin: location)
-          @scope = scope.where(venue: venues)
+          begin
+            venues = Venue.within(distance, origin: location)
+            @scope = scope.where(venue: venues)
+          rescue Geokit::Geocoders::GeocodeError
+            @scope = scope.none
+          end
         end
         self
       end
