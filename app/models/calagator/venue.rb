@@ -94,7 +94,7 @@ module Calagator
 
     # Get an address we can use for geocoding
     def geocode_address
-      full_address || address
+      address.present? ? address : full_address
     end
 
     # Return this venue's latitude/longitude location,
