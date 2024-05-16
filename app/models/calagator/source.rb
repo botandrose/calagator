@@ -26,8 +26,8 @@ module Calagator
 
     validate :assert_url
 
-    has_many :events, dependent: :destroy
-    has_many :venues, dependent: :destroy
+    has_many :events
+    has_many :venues
 
     scope :listing, -> { order("created_at DESC") }
 
