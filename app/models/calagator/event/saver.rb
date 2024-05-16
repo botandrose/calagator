@@ -30,7 +30,11 @@ module Calagator
       end
 
       def attempt_save?
-        !spam? && !preview? && event.save
+        !spam? && !preview? && event.save.tap do |valid|
+          if !valid
+            self.failure = event.errors.full_messages.join(", ")
+          end
+        end
       end
 
       def spam?
