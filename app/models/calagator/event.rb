@@ -22,7 +22,6 @@
 
 require "calagator/denylist_validator"
 require "calagator/duplicate_checking"
-require "calagator/decode_html_entities_hack"
 require "calagator/strip_whitespace"
 require "calagator/url_prefixer"
 require "paper_trail"

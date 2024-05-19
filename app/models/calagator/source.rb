@@ -15,7 +15,6 @@
 # == Source
 #
 # A model that represents a source of events data, such as feeds for hCal, iCal, etc.
-require "calagator/decode_html_entities_hack"
 require "paper_trail"
 require "loofah-activerecord"
 require "loofah/activerecord/xss_foliate"
