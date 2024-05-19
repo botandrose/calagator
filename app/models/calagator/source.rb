@@ -16,8 +16,6 @@
 #
 # A model that represents a source of events data, such as feeds for hCal, iCal, etc.
 require "paper_trail"
-require "loofah-activerecord"
-require "loofah/activerecord/xss_foliate"
 
 module Calagator
   class Source < Calagator::ApplicationRecord
@@ -31,8 +29,6 @@ module Calagator
     scope :listing, -> { order("created_at DESC") }
 
     has_paper_trail
-
-    xss_foliate
 
     # Create events for this source. Returns the events created. URL must be set
     # for this source for this to work.
