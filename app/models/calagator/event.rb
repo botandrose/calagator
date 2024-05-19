@@ -54,7 +54,7 @@ module Calagator
 
     # Validations
     validates :title, :description, :url, denylist: true
-    validates :start_time, :end_time, sequential: true
+    # validates :start_time, :end_time, sequential: true
     validates :title, :start_time, presence: true
     validates :url,
       format: {with: %r{\Ahttps?://(\w+:?\w*@)?(\S+)(:[0-9]+)?(/|/([\w#!:.?+=&%@\-/]))?\Z},
