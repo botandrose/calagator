@@ -48,7 +48,6 @@ module Calagator
     acts_as_mappable lat_column_name: :latitude, lng_column_name: :longitude
 
     xss_foliate sanitize: %i[description access_notes]
-    include DecodeHtmlEntitiesHack
     include ActiveModel::Serializers::Xml
 
     # Associations

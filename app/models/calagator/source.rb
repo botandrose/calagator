@@ -34,7 +34,6 @@ module Calagator
     has_paper_trail
 
     xss_foliate
-    include DecodeHtmlEntitiesHack
 
     # Create events for this source. Returns the events created. URL must be set
     # for this source for this to work.
