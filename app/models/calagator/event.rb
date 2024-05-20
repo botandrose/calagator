@@ -60,6 +60,8 @@ module Calagator
       format: {with: %r{\Ahttps?://(\w+:?\w*@)?(\S+)(:[0-9]+)?(/|/([\w#!:.?+=&%@\-/]))?\Z},
                allow_blank: true}
 
+    validates_presence_of :uid, if: :source_id
+
     before_destroy :check_if_locked_before_destroy # prevent locked events from being destroyed
 
     # Duplicates

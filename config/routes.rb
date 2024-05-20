@@ -33,9 +33,8 @@ Calagator::Engine.routes.draw do
   end
 
   resources :sources do
-    collection do
-      post :import
-    end
+    post :import, on: :collection
+    patch :reimport, on: :member
   end
 
   resources :venues do

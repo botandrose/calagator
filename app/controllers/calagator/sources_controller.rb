@@ -5,7 +5,7 @@ module Calagator
     # POST /import
     # POST /import.xml
     def import
-      @importer = Source::Importer.new(params.permit![:source])
+      @importer = Source::Importer.build(params.permit![:source])
       respond_to do |format|
         if @importer.import
           redirect_target = @importer.events.one? ? @importer.events.first : events_path
@@ -79,6 +79,17 @@ module Calagator
       end
     end
     private :create_or_update
+
+    def reimport
+      @source = Source.find(params[:id])
+      @importer = @source.importer
+      if @importer.import
+        redirect_target = @importer.events.one? ? @importer.events.first : events_path
+        redirect_to redirect_target, flash: { success: render_to_string(action: :import, layout: false) }
+      else
+        redirect_to sources_path, flash: { failure: @importer.failure_message }
+      end
+    end
 
     # DELETE /sources/1
     # DELETE /sources/1.xml

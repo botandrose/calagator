@@ -40,7 +40,7 @@ module Calagator
       (ri_cal_event.dtend || ri_cal_event.dtstart).to_time < cutoff
     end
 
-    delegate :location, :summary, :description, :url, to: :ri_cal_event
+    delegate :uid, :location, :summary, :description, :url, to: :ri_cal_event
 
     # translate the start and end dates correctly depending on whether it's a floating or fixed timezone
 

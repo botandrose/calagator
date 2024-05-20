@@ -41,30 +41,31 @@ module Calagator
     end
 
     def to_event(vevent)
-      event = EventMapper.new(vevent).to_event
+      attrs = EventMapper.new(vevent).to_event_attributes
+      event = source.events.where(uid: attrs[:uid]).first_or_initialize
+      event.attributes = attrs
       event.venue = VenueMapper.new(vevent.vvenue, vevent.location).to_venue
-      event.source = source
       event
     end
 
     def dedup(events)
       events.map do |event|
-        event = event_or_duplicate(event)
         event.venue = venue_or_duplicate(event.venue) if event.venue
         event
       end.uniq
     end
 
-    # Converts a VEvent instance into an Event
+    # Converts a VEvent instance into attributes for Event
     class EventMapper < Struct.new(:vevent)
-      def to_event
-        Event.new(
+      def to_event_attributes
+        {
+          uid: vevent.uid,
           title: vevent.summary,
           description: vevent.description,
           url: vevent.url,
           start_time: vevent.start_time,
           end_time: vevent.end_time
-        )
+        }
       end
     end
 

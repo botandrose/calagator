@@ -3,8 +3,9 @@
 module Calagator
   class Source < Calagator::ApplicationRecord
     class Importer < Struct.new(:source, :events)
-      def initialize(params)
-        self.source = Source.find_or_create_by(params)
+      def self.build(params)
+        source = Source.find_or_create_by(params)
+        new(source)
       end
 
       def import

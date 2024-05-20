@@ -66,15 +66,6 @@ module Calagator
 
     private
 
-    def event_or_duplicate(event)
-      duplicates = event.find_exact_duplicates
-      if duplicates.present?
-        duplicates.first.originator
-      else
-        event
-      end
-    end
-
     def venue_or_duplicate(venue)
       duplicates = venue.find_exact_duplicates
       if duplicates.present?

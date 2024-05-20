@@ -34,7 +34,10 @@ module Calagator
     # for this source for this to work.
     def create_events!
       save!
-      to_events.select { |event| event.valid? && !event.old? }.each(&:save!)
+      to_events
+        .select(&:valid?)
+        .reject(&:old?)
+        .each(&:save!)
     end
 
     # Normalize the URL.
@@ -54,6 +57,10 @@ module Calagator
 
       self.imported_at = Time.now.in_time_zone
       Source::Parser.to_events(url: url, source: self)
+    end
+
+    def importer
+      Importer.new(self)
     end
 
     # Return the name of the source, which can be its title or URL.
