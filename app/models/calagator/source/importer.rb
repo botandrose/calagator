@@ -13,9 +13,7 @@ module Calagator
 
         self.events = source.create_events!
 
-        events.present?.tap do |present|
-          source.destroy unless present
-        end
+        events.present?
       rescue Source::Parser::NotFound
         add_error "No events found at remote site. Is the event identifier in the URL correct?"
       rescue Source::Parser::HttpAuthenticationRequiredError
