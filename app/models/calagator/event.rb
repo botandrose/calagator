@@ -26,7 +26,6 @@ require "calagator/strip_whitespace"
 require "calagator/url_prefixer"
 require "paper_trail"
 require "loofah-activerecord"
-require "loofah/activerecord/xss_foliate"
 require "active_model/sequential_validator"
 require "active_model/serializers/xml"
 
@@ -42,7 +41,7 @@ module Calagator
     has_paper_trail
     acts_as_taggable_on :tags
 
-    xss_foliate strip: %i[title description venue_details]
+    xss_foliate except: [:title], strip: %i[title description venue_details], encode_special_chars: false
 
     include ActiveModel::Serializers::Xml
 
