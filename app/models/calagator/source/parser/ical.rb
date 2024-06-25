@@ -44,7 +44,8 @@ module Calagator
       attrs = EventMapper.new(vevent).to_event_attributes
       event = source.events.where(uid: attrs[:uid]).first_or_initialize
       event.attributes = attrs
-      event.venue = VenueMapper.new(vevent.vvenue, vevent.location).to_venue
+      event.venue || event.build_venue
+      event.venue.update! VenueMapper.new(vevent.vvenue, vevent.location).to_venue_attributes
       event
     end
 
@@ -71,15 +72,15 @@ module Calagator
 
     # Converts a VVenue instance into a Venue
     class VenueMapper < Struct.new(:vvenue, :fallback)
-      def to_venue
-        from_vvenue || from_fallback || return
+      def to_venue_attributes
+        attributes = from_vvenue&.attributes || from_fallback&.attributes || {}
+        attributes.delete_if { |key| %w[id created_at updated_at].include?(key) }
       end
 
       private
 
       def from_vvenue
         return unless vvenue
-
         Venue.new(
           title: vvenue.name,
           street_address: vvenue.address,
@@ -88,14 +89,18 @@ module Calagator
           postal_code: vvenue.postalcode,
           country: vvenue.country,
           latitude: vvenue.latitude,
-          longitude: vvenue.longitude, &:geocode!
+          longitude: vvenue.longitude,
+          &:geocode!
         )
       end
 
       def from_fallback
         return if fallback.blank?
-
-        Venue.new(title: fallback)
+        Venue.new(
+          title: "Location:",
+          address: fallback,
+          &:geocode!
+        )
       end
     end
   end
