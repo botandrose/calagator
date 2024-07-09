@@ -46,7 +46,7 @@ module Calagator
       source = if item.source.nil?
         "added directly to #{Calagator.title}"
       else
-        "imported from #{link_to truncate(item.source.name, length: 40), url_for(item.source)}"
+        "imported from #{link_to truncate(item.source.name, length: 40), [:edit, item.source]}"
       end
       created = " <br /><strong>#{normalize_time(item.created_at, format: :html)}</strong>"
       updated = if item.updated_at > item.created_at
