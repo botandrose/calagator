@@ -38,6 +38,7 @@ module Calagator
         .select(&:valid?)
         .reject(&:old?)
         .each(&:save!)
+      touch(:imported_at)
     end
 
     # Normalize the URL.
@@ -54,8 +55,6 @@ module Calagator
     # Returns an Array of Event objects that were read from this source.
     def to_events
       raise ActiveRecord::RecordInvalid, self unless valid?
-
-      self.imported_at = Time.now.in_time_zone
       Source::Parser.to_events(url: url, source: self)
     end
 
