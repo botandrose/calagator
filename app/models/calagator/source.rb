@@ -38,7 +38,7 @@ module Calagator
         .select(&:valid?)
         .reject(&:old?)
         .each(&:save!)
-      touch(:imported_at)
+        .tap { touch(:imported_at) }
     end
 
     # Normalize the URL.
